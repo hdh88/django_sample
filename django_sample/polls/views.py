@@ -15,6 +15,7 @@ def index(request):
     return HttpResponse(output)
 '''
 
+
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
@@ -22,6 +23,7 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         """Return the last five published questions."""
         return Question.objects.order_by('-pub_date')[:5]
+
 
 class DetailView(generic.DetailView):
     model = Question
@@ -35,11 +37,17 @@ class ResultsView(generic.DetailView):
 
 def index(request):
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    question_list = []
+    for ques in latest_question_list:
+        if ques.was_published_recently() == True:
+            question_list.append(ques)
+
     template = loader.get_template('polls/index.html')
     context = {
-        'latest_question_list': latest_question_list,
+        'latest_question_list': question_list,
     }
     return HttpResponse(template.render(context, request))
+
 
 def detail(request, question_id):
     try:
